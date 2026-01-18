@@ -1,5 +1,5 @@
 # Binaries
-rc
+/rc
 *.exe
 *.exe~
 *.dll

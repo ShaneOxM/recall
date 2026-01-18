@@ -1,6 +1,10 @@
 package cmd
 
 import (
+	"os"
+	"path/filepath"
+
+	"github.com/joho/godotenv"
 	"github.com/spf13/cobra"
 )
 
@@ -25,6 +29,11 @@ func Execute() error {
 }
 
 func init() {
+	// Load env vars from ~/.recall/.env
+	if home, err := os.UserHomeDir(); err == nil {
+		godotenv.Load(filepath.Join(home, ".recall", ".env"))
+	}
+
 	rootCmd.PersistentFlags().StringP("config", "c", "", "config file (default $HOME/.recall/config.yaml)")
 	rootCmd.PersistentFlags().StringVarP(&backendFlag, "backend", "b", "local", "storage backend (local, apple, todoist)")
 }

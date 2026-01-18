@@ -69,6 +69,30 @@ rc list --tag family
 
 # Include completed
 rc list --all
+
+# Show IDs (for complete/delete)
+rc list --ids
+```
+
+### Complete & Delete
+
+```bash
+# Get IDs first
+rc list --ids
+
+# Mark as completed (local backend)
+rc complete 1768773271812-7727a989
+
+# Delete a reminder (local backend)
+rc delete 1768773271812-7727a989
+
+# With other backends
+rc list --ids --backend todoist
+rc complete 9929728458 --backend todoist
+rc delete 9929728458 --backend todoist
+
+rc list --ids --backend apple
+rc complete "Call mom" --backend apple   # Apple uses title as ID
 ```
 
 ### Backend Selection
@@ -87,19 +111,19 @@ rc add "Task" --backend todoist
 
 ## Configuration
 
-### Environment Variables
+Create `~/.recall/.env` with your settings:
 
-| Variable | Description |
-|----------|-------------|
-| `TODOIST_API_TOKEN` | Todoist API token from [Developer Settings](https://todoist.com/app/settings/integrations/developer) |
+```bash
+mkdir -p ~/.recall
+echo 'TODOIST_API_TOKEN=your-token-here' > ~/.recall/.env
+```
 
-### Example Setup
+Get your Todoist token from [Developer Settings](https://todoist.com/app/settings/integrations/developer).
+
+### Optional: Default Backend
 
 ```bash
 # Add to your shell profile (~/.zshrc, ~/.bashrc)
-export TODOIST_API_TOKEN="your-token-here"
-
-# Optional: Set default backend
 alias rc="rc --backend todoist"
 ```
 

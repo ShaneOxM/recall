@@ -30,6 +30,7 @@ var (
 	listTags      []string
 	listAll       bool
 	listCompleted bool
+	listShowIDs   bool
 )
 
 func init() {
@@ -41,6 +42,7 @@ func init() {
 	listCmd.Flags().StringSliceVarP(&listTags, "tag", "t", nil, "filter by tags")
 	listCmd.Flags().BoolVarP(&listAll, "all", "a", false, "include completed reminders")
 	listCmd.Flags().BoolVar(&listCompleted, "completed", false, "show only completed reminders")
+	listCmd.Flags().BoolVar(&listShowIDs, "ids", false, "show reminder IDs (for complete/delete)")
 }
 
 func runList(cmd *cobra.Command, args []string) error {
@@ -108,13 +110,13 @@ func runList(cmd *cobra.Command, args []string) error {
 	})
 
 	for _, r := range reminders {
-		printReminder(r)
+		printReminder(r, listShowIDs)
 	}
 
 	return nil
 }
 
-func printReminder(r *protocol.Reminder) {
+func printReminder(r *protocol.Reminder, showID bool) {
 	status := "[ ]"
 	if r.Completed {
 		status = "[x]"
@@ -132,6 +134,9 @@ func printReminder(r *protocol.Reminder) {
 	}
 
 	fmt.Printf("%s %s%s%s\n", status, r.Title, dueStr, priorityStr)
+	if showID {
+		fmt.Printf("    ID: %s\n", r.ID)
+	}
 
 	if r.Notes != "" {
 		fmt.Printf("    Note: %s\n", r.Notes)

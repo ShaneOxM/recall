@@ -187,4 +187,4 @@ MIT License - see [LICENSE](LICENSE)
 
 ## Related
 
-- [SaveContext](https://github.com/greenfieldlabs-inc/savecontext) - Context persistence for AI coding agents
+- [SaveContext](https://github.com/greenfieldlabs-inc/savecontext) - The OS for AI coding agents

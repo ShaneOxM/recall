@@ -30,6 +30,9 @@ make install
 
 ```bash
 go install github.com/shaneoxm/recall/cmd/rc@latest
+
+# Make available to AI agents (Claude Code, etc.)
+sudo ln -sf ~/go/bin/rc /usr/local/bin/rc
 ```
 
 ## Usage

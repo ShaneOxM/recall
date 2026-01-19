@@ -129,9 +129,25 @@ alias rc="rc --backend todoist"
 
 ## Agent Integration
 
-### Claude Code
+### Skill Package (Recommended)
 
-Add to your `CLAUDE.md` or system prompt:
+Install the Recall skill so AI agents automatically know how to create reminders:
+
+```bash
+# Claude Code
+cp -r skills/Recall ~/.claude/skills/
+
+# Other agents - copy to your agent's skills directory
+```
+
+The skill teaches agents to:
+- Create reminders when you mention tasks
+- Use appropriate due dates and tags
+- Proactively capture things you shouldn't forget
+
+### Manual Setup
+
+Alternatively, add to your `CLAUDE.md` or system prompt:
 
 ```markdown
 When the user mentions something they need to remember or do later,

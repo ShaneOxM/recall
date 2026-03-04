@@ -292,5 +292,18 @@ func (s *Store) matchesFilter(r *protocol.Reminder, filter *protocol.ListFilter)
 		}
 	}
 
+	// Date range filtering
+	if filter.DueAfter != nil {
+		if r.Due == nil || r.Due.Before(*filter.DueAfter) {
+			return false
+		}
+	}
+
+	if filter.DueBefore != nil {
+		if r.Due == nil || r.Due.Equal(*filter.DueBefore) || r.Due.After(*filter.DueBefore) {
+			return false
+		}
+	}
+
 	return true
 }

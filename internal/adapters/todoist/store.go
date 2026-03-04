@@ -102,6 +102,11 @@ func (s *Store) Get(ctx context.Context, id string) (*protocol.Reminder, error) 
 	return s.toReminder(&task), nil
 }
 
+// todoistListResponse wraps the Todoist v1 API response.
+type todoistListResponse struct {
+	Results []todoistTask `json:"results"`
+}
+
 // List returns all active tasks from Todoist.
 func (s *Store) List(ctx context.Context, filter *protocol.ListFilter) ([]*protocol.Reminder, error) {
 	data, err := s.doRequest(ctx, "GET", "/tasks", nil)
@@ -109,10 +114,12 @@ func (s *Store) List(ctx context.Context, filter *protocol.ListFilter) ([]*proto
 		return nil, err
 	}
 
-	var tasks []todoistTask
-	if err := json.Unmarshal(data, &tasks); err != nil {
+	var resp todoistListResponse
+	if err := json.Unmarshal(data, &resp); err != nil {
 		return nil, fmt.Errorf("parsing response: %w", err)
 	}
+
+	tasks := resp.Results
 
 	var reminders []*protocol.Reminder
 	for _, task := range tasks {

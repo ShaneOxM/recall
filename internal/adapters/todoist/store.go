@@ -14,7 +14,7 @@ import (
 	"github.com/shaneoxm/recall/internal/protocol"
 )
 
-const baseURL = "https://api.todoist.com/rest/v2"
+const baseURL = "https://api.todoist.com/api/v1"
 
 var ErrNotFound = errors.New("task not found")
 
@@ -36,14 +36,14 @@ func New(token string, project string) *Store {
 
 // todoistTask represents a Todoist task.
 type todoistTask struct {
-	ID          string   `json:"id"`
-	Content     string   `json:"content"`
-	Description string   `json:"description,omitempty"`
+	ID          string      `json:"id"`
+	Content     string      `json:"content"`
+	Description string      `json:"description,omitempty"`
 	Due         *dueDateObj `json:"due,omitempty"`
-	Priority    int      `json:"priority,omitempty"` // 1=normal, 2, 3, 4=urgent
-	Labels      []string `json:"labels,omitempty"`
-	IsCompleted bool     `json:"is_completed"`
-	CreatedAt   string   `json:"created_at"`
+	Priority    int         `json:"priority,omitempty"` // 1=normal, 2, 3, 4=urgent
+	Labels      []string    `json:"labels,omitempty"`
+	IsCompleted bool        `json:"is_completed"`
+	CreatedAt   string      `json:"created_at"`
 }
 
 type dueDateObj struct {

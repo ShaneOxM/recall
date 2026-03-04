@@ -18,18 +18,20 @@ rc complete <id>
 rc delete <id>
 ```
 
-## Workflow
+## Workflow (Two Steps Required)
+
+**Important:** Use the same `--backend` flag for both steps.
 
 1. **Get the ID first:**
 ```bash
-rc list --ids
+rc list --ids [--backend <backend>]
 ```
 
-2. **Complete or delete:**
+2. **Complete or delete using that ID:**
 ```bash
-rc complete 1768773271812-7727a989
+rc complete <id> [--backend <backend>]
 # or
-rc delete 1768773271812-7727a989
+rc delete <id> [--backend <backend>]
 ```
 
 ## Backend-Specific IDs

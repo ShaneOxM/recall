@@ -18,6 +18,8 @@ For most requests, use these patterns directly:
 | "add a todo for..." | `rc add "..." --tag work` |
 | "show my reminders" | `rc list` or `rc list --today` |
 | "what's due?" | `rc list --today` |
+| "mark done" / "finished" | `rc list --ids` → `rc complete <id>` |
+| "delete that reminder" | `rc list --ids` → `rc delete <id>` |
 
 ## Workflow Routing
 
@@ -44,11 +46,12 @@ rc list --week          # Due this week
 rc list --tag work      # By tag
 rc list --ids           # Show IDs for complete/delete
 
-# Complete/Delete
-rc complete <id>
-rc delete <id>
+# Complete/Delete (two steps - get ID first, use same --backend for both)
+rc list --ids           # Step 1: get the ID
+rc complete <id>        # Step 2: mark done
+rc delete <id>          # or remove
 
-# Backend selection (default: local)
+# Backend selection (user's preference)
 rc add "Task" --backend apple    # Apple Reminders
 rc add "Task" --backend todoist  # Todoist
 ```

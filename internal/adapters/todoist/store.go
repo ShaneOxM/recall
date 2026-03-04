@@ -44,6 +44,7 @@ type todoistTask struct {
 	Labels      []string    `json:"labels,omitempty"`
 	IsCompleted bool        `json:"is_completed"`
 	CreatedAt   string      `json:"created_at"`
+	ParentID    string      `json:"parent_id,omitempty"`
 }
 
 type dueDateObj struct {
@@ -108,7 +109,9 @@ type todoistListResponse struct {
 }
 
 // List returns all active tasks from Todoist.
+// Note: Todoist API filter is broken, so we fetch all tasks and filter client-side.
 func (s *Store) List(ctx context.Context, filter *protocol.ListFilter) ([]*protocol.Reminder, error) {
+	// Always fetch all tasks - API filter doesn't work correctly
 	data, err := s.doRequest(ctx, "GET", "/tasks", nil)
 	if err != nil {
 		return nil, err
@@ -230,6 +233,8 @@ func (s *Store) toReminder(task *todoistTask) *protocol.Reminder {
 		Notes:     task.Description,
 		Tags:      task.Labels,
 		Completed: task.IsCompleted,
+		ParentID:  task.ParentID,
+		IsSubtask: task.ParentID != "",
 	}
 
 	// Parse priority (Todoist 1=normal, 4=urgent -> ours 0=none, 3=high)
@@ -241,10 +246,12 @@ func (s *Store) toReminder(task *todoistTask) *protocol.Reminder {
 	if task.Due != nil {
 		if task.Due.Datetime != "" {
 			if t, err := time.Parse(time.RFC3339, task.Due.Datetime); err == nil {
+				// Convert to local time for comparison
 				r.Due = &t
 			}
 		} else if task.Due.Date != "" {
-			if t, err := time.Parse("2006-01-02", task.Due.Date); err == nil {
+			// Date is all-day, parse as local time at midnight
+			if t, err := time.ParseInLocation("2006-01-02", task.Due.Date, time.Local); err == nil {
 				r.Due = &t
 			}
 		}
@@ -292,16 +299,36 @@ func (s *Store) matchesFilter(r *protocol.Reminder, filter *protocol.ListFilter)
 		}
 	}
 
-	// Date range filtering
+	// Date range filtering - use date-only comparison (ignore time)
 	if filter.DueAfter != nil {
-		if r.Due == nil || r.Due.Before(*filter.DueAfter) {
-			return false
+		if r.Due == nil {
+			// Exclude tasks without dates, but allow subtasks (they inherit parent's date)
+			if !r.IsSubtask {
+				return false
+			}
+		} else {
+			// Compare date components only - task must be due on or after DueAfter
+			afterDate := time.Date(filter.DueAfter.Year(), filter.DueAfter.Month(), filter.DueAfter.Day(), 0, 0, 0, 0, filter.DueAfter.Location())
+			dueDate := time.Date(r.Due.Year(), r.Due.Month(), r.Due.Day(), 0, 0, 0, 0, r.Due.Location())
+			if dueDate.Before(afterDate) {
+				return false
+			}
 		}
 	}
 
 	if filter.DueBefore != nil {
-		if r.Due == nil || r.Due.Equal(*filter.DueBefore) || r.Due.After(*filter.DueBefore) {
-			return false
+		if r.Due == nil {
+			// Allow subtasks without dates (they inherit parent's date)
+			if !r.IsSubtask {
+				return false
+			}
+		} else {
+			// Compare date components only
+			beforeDate := time.Date(filter.DueBefore.Year(), filter.DueBefore.Month(), filter.DueBefore.Day(), 0, 0, 0, 0, filter.DueBefore.Location())
+			dueDate := time.Date(r.Due.Year(), r.Due.Month(), r.Due.Day(), 0, 0, 0, 0, r.Due.Location())
+			if !dueDate.Before(beforeDate) {
+				return false
+			}
 		}
 	}
 

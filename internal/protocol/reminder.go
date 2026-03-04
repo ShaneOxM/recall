@@ -6,17 +6,23 @@ import (
 
 // Reminder represents a reminder with rich context.
 type Reminder struct {
-	ID          string    `json:"id"`
-	Title       string    `json:"title"`
+	ID          string     `json:"id"`
+	Title       string     `json:"title"`
 	Due         *time.Time `json:"due,omitempty"`
-	Notes       string    `json:"notes,omitempty"`
-	Links       []string  `json:"links,omitempty"`
-	Tags        []string  `json:"tags,omitempty"`
-	Priority    int       `json:"priority,omitempty"` // 0=none, 1=low, 2=medium, 3=high
-	Completed   bool      `json:"completed"`
+	Notes       string     `json:"notes,omitempty"`
+	Links       []string   `json:"links,omitempty"`
+	Tags        []string   `json:"tags,omitempty"`
+	Priority    int        `json:"priority,omitempty"` // 0=none, 1=low, 2=medium, 3=high
+	Completed   bool       `json:"completed"`
 	CompletedAt *time.Time `json:"completed_at,omitempty"`
-	CreatedAt   time.Time `json:"created_at"`
-	UpdatedAt   time.Time `json:"updated_at"`
+	CreatedAt   time.Time  `json:"created_at"`
+	UpdatedAt   time.Time  `json:"updated_at"`
+
+	// ParentID is the ID of the parent task (for subtasks)
+	ParentID string `json:"parent_id,omitempty"`
+
+	// IsSubtask indicates if this reminder is a subtask
+	IsSubtask bool `json:"is_subtask,omitempty"`
 }
 
 // NewReminder creates a new reminder with the given title.

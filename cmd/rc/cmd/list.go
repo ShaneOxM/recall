@@ -109,8 +109,29 @@ func runList(cmd *cobra.Command, args []string) error {
 		return reminders[i].Due.Before(*reminders[j].Due)
 	})
 
+	// Group subtasks by parent
+	parents := make(map[string][]*protocol.Reminder)
+	subtasks := make(map[string][]*protocol.Reminder)
+
 	for _, r := range reminders {
-		printReminder(r, listShowIDs)
+		if r.IsSubtask && r.ParentID != "" {
+			subtasks[r.ParentID] = append(subtasks[r.ParentID], r)
+		} else {
+			parents[r.ID] = append(parents[r.ID], r)
+		}
+	}
+
+	// Print parents with their subtasks
+	for _, parent := range reminders {
+		if parent.IsSubtask {
+			continue
+		}
+		printReminder(parent, listShowIDs)
+		if sub, ok := subtasks[parent.ID]; ok {
+			for _, s := range sub {
+				printSubtask(s, listShowIDs)
+			}
+		}
 	}
 
 	return nil
@@ -147,6 +168,35 @@ func printReminder(r *protocol.Reminder, showID bool) {
 	if len(r.Links) > 0 {
 		for _, link := range r.Links {
 			fmt.Printf("    Link: %s\n", link)
+		}
+	}
+}
+
+func printSubtask(r *protocol.Reminder, showID bool) {
+	status := "[ ]"
+	if r.Completed {
+		status = "[x]"
+	}
+
+	dueStr := ""
+	if r.Due != nil {
+		dueStr = fmt.Sprintf(" (due: %s)", r.Due.Format("Mon Jan 2"))
+	}
+
+	fmt.Printf("  └─ %s %s%s\n", status, r.Title, dueStr)
+	if showID {
+		fmt.Printf("      ID: %s\n", r.ID)
+	}
+
+	if r.Notes != "" {
+		fmt.Printf("      Note: %s\n", r.Notes)
+	}
+	if len(r.Tags) > 0 {
+		fmt.Printf("      Tags: %v\n", r.Tags)
+	}
+	if len(r.Links) > 0 {
+		for _, link := range r.Links {
+			fmt.Printf("      Link: %s\n", link)
 		}
 	}
 }
